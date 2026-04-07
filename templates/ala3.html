@@ -1,0 +1,187 @@
+{% extends 'base.html' %} {% block title %}ALA 3 | MAC-Based Message
+Authentication{% endblock %} {% block content %} {% if result %}
+<div class="alert-container">
+  <div
+    class="alert {{ 'alert-success' if not result.tampered else 'alert-danger' }}"
+  >
+    {% if not result.tampered %}
+    <strong>✓ No Tampering Detected</strong>
+    <p>Message verified successfully with MAC.</p>
+    {% else %}
+    <strong>⚠ Tampering Detected!</strong>
+    <p>Tampered message failed MAC verification.</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<main class="page-shell">
+  <section class="hero card">
+    <div>
+      <h1 class="eyebrow">ALA-3</h1>
+      <h2>MAC-Based Message Authentication</h2>
+      <p class="lead">
+        Simulate a sender generating an HMAC for a message and a receiver
+        validating it with the same shared secret key.
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Activity Aim</h2>
+    <p>
+      This activity demonstrates how HMAC provides integrity and authentication
+      by using a shared secret between sender and receiver. A tampered message
+      must fail verification.
+    </p>
+
+    <form method="POST" class="form-grid two-column">
+      <label>
+        <span>Message</span>
+        <textarea
+          id="messageInput"
+          name="message"
+          rows="4"
+          placeholder="Enter the message to protect"
+          required
+        ></textarea>
+      </label>
+      <div>
+        <label>
+          <span>Shared Secret Key</span>
+          <div class="key-container">
+            <input
+              type="text"
+              id="generatedKey"
+              placeholder="Generated key will appear here"
+              readonly
+            />
+            <button
+              type="button"
+              id="copyBtn"
+              class="copy-btn"
+              onclick="copyToClipboard()"
+              disabled
+              title="Copy to clipboard"
+            >
+              📋
+            </button>
+          </div>
+        </label>
+        <button
+          type="button"
+          id="generateKeyBtn"
+          class="primary-btn full-width"
+          onclick="generateKey()"
+        >
+          Generate Secret Key
+        </button>
+      </div>
+      <label class="full-width">
+        <span>Tampered Message Example (Optional)</span>
+        <textarea
+          id="tamperedInput"
+          name="tampered_message"
+          rows="4"
+          placeholder="Optional tampered message for comparison"
+        ></textarea>
+      </label>
+      <label class="full-width">
+        <span>Paste Secret Key for Verification</span>
+        <input
+          type="text"
+          id="pasteKeyInput"
+          placeholder="Paste the secret key here to verify"
+        />
+      </label>
+      <input type="hidden" id="hiddenKey" name="key" />
+      <button
+        type="submit"
+        id="submitBtn"
+        class="primary-btn full-width"
+        disabled
+      >
+        Generate MAC and Verify
+      </button>
+    </form>
+
+    <script>
+      function generateKey() {
+        const messageInput = document.getElementById("messageInput");
+        if (!messageInput.value.trim()) {
+          alert("Please enter a message first.");
+          return;
+        }
+
+        // Generate a random key (32 characters)
+        const key =
+          Math.random().toString(36).substring(2, 15) +
+          Math.random().toString(36).substring(2, 15) +
+          Math.random().toString(36).substring(2, 15);
+
+        document.getElementById("generatedKey").value = key;
+        document.getElementById("copyBtn").disabled = false;
+        document.getElementById("submitBtn").disabled = false;
+      }
+
+      function copyToClipboard() {
+        const keyInput = document.getElementById("generatedKey");
+        keyInput.select();
+        document.execCommand("copy");
+        alert("Key copied to clipboard!");
+      }
+
+      // Get the form and add submit listener
+      const form = document.querySelector("form");
+      form.addEventListener("submit", function (e) {
+        const generatedKey = document.getElementById("generatedKey").value;
+        const pastedKey = document.getElementById("pasteKeyInput").value;
+        const hiddenKey = document.getElementById("hiddenKey");
+
+        // Use pasted key if provided, otherwise use generated key
+        hiddenKey.value = pastedKey || generatedKey;
+
+        if (!hiddenKey.value) {
+          e.preventDefault();
+          alert("Please generate or paste a secret key.");
+        }
+      });
+    </script>
+  </section>
+
+  {% if result %}
+  <section class="card result-card">
+    <h2>Sender and Receiver Simulation</h2>
+    <div class="result-grid">
+      <div>
+        <h3>Sender Message</h3>
+        <p>{{ result.message }}</p>
+      </div>
+      <div>
+        <h3>Generated MAC</h3>
+        <pre>{{ result.mac }}</pre>
+      </div>
+      <div>
+        <h3>Receiver Verification</h3>
+        <p
+          class="status {{ 'status-success' if result.receiver_valid else 'status-failure' }}"
+        >
+          {{ 'MAC verified successfully with the shared key.' if
+          result.receiver_valid else 'MAC verification failed.' }}
+        </p>
+      </div>
+      <div>
+        <h3>Tampered Message Check</h3>
+        <p>{{ result.tampered_message }}</p>
+        <p
+          class="status {{ 'status-success' if result.tampered_valid else 'status-failure' }}"
+        >
+          {{ 'Tampered message accepted.' if result.tampered_valid else
+          'Tampered message rejected, proving integrity protection.' }}
+        </p>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}

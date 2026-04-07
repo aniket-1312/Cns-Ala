@@ -1,0 +1,108 @@
+{% extends 'base.html' %} {% block title %}ALA 1 | Digital Signature Verifier{%
+endblock %} {% block content %} {% if result %}
+<div class="alert-container">
+  <div
+    class="alert {{ 'alert-success' if not result.received_message or result.received_valid else 'alert-danger' }}"
+  >
+    {% if not result.received_message %}
+    <strong>✓ No Tampering Check</strong>
+    <p>Original message verified successfully.</p>
+    {% elif result.received_valid %}
+    <strong>✓ No Tampering Detected</strong>
+    <p>Received message matches original.</p>
+    {% else %}
+    <strong>⚠ Tampering Detected!</strong>
+    <p>Received message has been altered.</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<main class="page-shell">
+  <section class="hero card">
+    <div>
+      <h1 class="eyebrow">ALA-1</h1>
+      <h2>Digital Signature Verifier</h2>
+      <p class="lead">
+        Generate an RSA key pair, sign a message with the private key, and
+        verify it with the public key after hashing the message with SHA-256.
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Activity Aim</h2>
+    <p>
+      This activity demonstrates public-key cryptography, message integrity, and
+      authenticity. The sender signs the message, and the verifier checks that
+      the signature matches the original content.
+    </p>
+
+    <form method="POST" class="form-grid">
+      <label>
+        <span>Original Message</span>
+        <textarea
+          name="message"
+          rows="5"
+          placeholder="Enter the original message to sign"
+          required
+        ></textarea>
+      </label>
+      <label>
+        <span>Received Message</span>
+        <textarea
+          name="received_message"
+          rows="5"
+          placeholder="Enter the received message to check for tampering"
+        ></textarea>
+      </label>
+      <button type="submit" class="primary-btn">Sign and Verify</button>
+    </form>
+  </section>
+
+  {% if result %}
+  <section class="card result-card">
+    <h2>Verification Result</h2>
+    <div class="result-grid">
+      <div>
+        <h3>Original Message</h3>
+        <p>{{ result.message }}</p>
+      </div>
+      <div>
+        <h3>Signature</h3>
+        <pre>{{ result.signature }}</pre>
+      </div>
+      <div>
+        <h3>Public Key</h3>
+        <pre>{{ result.public_key }}</pre>
+      </div>
+      <div>
+        <h3>Original Message Verification</h3>
+        <p
+          class="status {{ 'status-success' if result.valid else 'status-failure' }}"
+        >
+          {{ 'Valid signature: message verified successfully.' if result.valid
+          else 'Invalid signature: verification failed.' }}
+        </p>
+      </div>
+      {% if result.received_message %}
+      <div>
+        <h3>Received Message</h3>
+        <p>{{ result.received_message }}</p>
+      </div>
+      <div>
+        <h3>Tampering Status</h3>
+        <p
+          class="status {{ 'status-success' if result.received_valid else 'status-failure' }}"
+        >
+          {{ 'No tampering detected: received message matches original.' if
+          result.received_valid else 'Tampering detected: received message does
+          not match original!' }}
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}

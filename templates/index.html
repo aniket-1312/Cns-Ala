@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header">
+    <div class="logo"><img src="{{ url_for('static', filename='gmiulogo.png') }}" alt="GMIU Logo" class="logo_img"></div>
+    <div class="uni-name">Gyanmanjari Innovative University</div>
+</div>
+
+<div class="info">Gyanmanjari Institute of Technology</div>
+<div class="info">B. Tech IT</div>
+<div class="info">BETIT16326 & CNS</div>
+
+<div class="student">
+    <p>En No: 20230905090012</p>
+    <p>Name: Aniket Chavda</p>
+</div>
+
+<div class="ala-links">
+    <a href="/ala1">ALA-1</a>
+    <a href="/ala2">ALA-2</a>
+    <a href="/ala3">ALA-3</a>
+</div>
+{% endblock %}

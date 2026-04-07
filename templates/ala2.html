@@ -1,0 +1,90 @@
+{% extends 'base.html' %} {% block title %}ALA 2 | SHA Integrity Analyzer{%
+endblock %} {% block content %} {% if comparison %}
+<div class="alert-container">
+  <div
+    class="alert {{ 'alert-success' if not comparison.tampered else 'alert-danger' }}"
+  >
+    {% if not comparison.tampered %}
+    <strong>✓ No Tampering Detected</strong>
+    <p>Original and modified messages are identical.</p>
+    {% else %}
+    <strong>⚠ Tampering Detected!</strong>
+    <p>Modified message differs from original.</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<main class="page-shell">
+  <section class="hero card">
+    <div>
+      <h1 class="eyebrow">ALA-2</h1>
+      <h2>SHA Integrity Analyzer</h2>
+      <p class="lead">
+        Compare SHA-1, SHA-256, and SHA-512 outputs for two almost identical
+        messages to observe the avalanche effect.
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Activity Aim</h2>
+    <p>
+      This activity shows how a tiny change in the input produces a
+      significantly different hash output. That property is why hashing is
+      critical in digital signatures and integrity checks.
+    </p>
+
+    <form method="POST" class="form-grid two-column">
+      <label>
+        <span>Original Message</span>
+        <textarea
+          name="message"
+          rows="4"
+          placeholder="Enter the original message"
+          required
+        ></textarea>
+      </label>
+      <label>
+        <span>Modified Message</span>
+        <textarea
+          name="modified_message"
+          rows="4"
+          placeholder="Enter a slightly changed message"
+        ></textarea>
+      </label>
+      <button type="submit" class="primary-btn full-width">
+        Analyze Hashes
+      </button>
+    </form>
+  </section>
+
+  {% if comparison %}
+  <section class="card result-card">
+    <h2>Hash Comparison</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Algorithm</th>
+            <th>Original Hash</th>
+            <th>Modified Hash</th>
+            <th>Different Hex Characters</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for algorithm, values in comparison.algorithms.items() %}
+          <tr>
+            <td>{{ algorithm }}</td>
+            <td><code>{{ values.original }}</code></td>
+            <td><code>{{ values.modified }}</code></td>
+            <td>{{ values.difference }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}
